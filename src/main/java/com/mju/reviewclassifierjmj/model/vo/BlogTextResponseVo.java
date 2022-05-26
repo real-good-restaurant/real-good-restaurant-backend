@@ -3,8 +3,8 @@ package com.mju.reviewclassifierjmj.model.vo;
 import lombok.Data;
 
 @Data
-public class BlogTextVo {
-    private Long id;
+public class BlogTextResponseVo {
+    private int id;
 
     private String text;
 
