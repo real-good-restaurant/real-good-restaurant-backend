@@ -1,0 +1,7 @@
+app:
+  naver:
+    client:
+      id: [id]
+      secret: [secret]
+  classifier:
+    url: [url]
