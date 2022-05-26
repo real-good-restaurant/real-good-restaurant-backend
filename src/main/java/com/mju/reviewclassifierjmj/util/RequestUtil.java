@@ -1,13 +1,15 @@
 package com.mju.reviewclassifierjmj.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
+import java.net.URLEncoder;
+import java.util.*;
 
 public class RequestUtil {
 
@@ -23,6 +25,33 @@ public class RequestUtil {
             if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
                 return readBody(con.getInputStream());
             } else { // 에러 발생
+                return readBody(con.getErrorStream());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("API 요청과 응답 실패", e);
+        } finally {
+            con.disconnect();
+        }
+    }
+
+    public static String post(String apiUrl, String requestBody) {
+        HttpURLConnection con = connect(apiUrl);
+        try {
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json;");
+            con.setDoOutput(true);
+
+            BufferedWriter bufferedWriter = new BufferedWriter(
+                    new OutputStreamWriter(con.getOutputStream())
+            );
+            bufferedWriter.write(requestBody);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return readBody(con.getInputStream());
+            } else {
                 return readBody(con.getErrorStream());
             }
         } catch (IOException e) {
@@ -58,5 +87,20 @@ public class RequestUtil {
         } catch (IOException e) {
             throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
         }
+    }
+
+    public static String createNaverSearchUrl(String query, Long display, Long start) throws UnsupportedEncodingException {
+        String encodedQuery = URLEncoder.encode(query, "UTF-8");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("query", encodedQuery);
+        if (!Objects.isNull(display)) {
+            params.add("display", String.valueOf(display));
+        }
+        if (!Objects.isNull(start)) {
+            params.add("start", String.valueOf(start));
+        }
+        return UriComponentsBuilder.fromUriString("https://openapi.naver.com/v1/search/blog.json")
+                .queryParams(params)
+                .build().toUriString();
     }
 }
