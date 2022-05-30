@@ -11,6 +11,9 @@ BERT 기반 모델으로 네이버 맛집 리뷰 중 광고일 가능성이 높�
 **Server:** Java Spring Boot
 
 
+## Architecture
+<img src="./imgs/jmj_architecture.png" width="600">
+
 ## API Reference
 
 #### 광고 여부, 광고 확률과 함께 블로그 포스팅 목록을 반환
@@ -33,5 +36,5 @@ BERT 기반 모델으로 네이버 맛집 리뷰 중 광고일 가능성이 높�
 
 ## Screenshots
 
-![App Screenshot](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/cfc23af0-12a9-46bb-b694-4946feffc65e/Picture1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220526%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220526T112100Z&X-Amz-Expires=86400&X-Amz-Signature=d088ba34943dd6a3cce29d51428159b775b611ef74dfdae0044f1fb3fd3e6261&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Picture1.png%22&x-id=GetObject)
+![App Screenshot](./imgs/jmj_screenshot.png)
 
