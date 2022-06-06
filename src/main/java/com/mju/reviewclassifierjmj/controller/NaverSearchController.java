@@ -42,6 +42,7 @@ public class NaverSearchController {
         } catch (Exception e) {
             e.printStackTrace();
             searchResult.setErrorMessage(e.getMessage());
+            searchResult.getItems().clear();
             return new ResponseEntity<>(searchResult, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

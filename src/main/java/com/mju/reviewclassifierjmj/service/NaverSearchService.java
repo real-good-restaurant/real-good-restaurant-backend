@@ -33,7 +33,7 @@ public class NaverSearchService {
     @Value("${app.classifier.url}")
     private String classifierUrl;
 
-    public ClassifierResponseVo classifyBlogTests(SearchResult searchResult) throws IOException {
+    public ClassifierResponseVo classifyBlogTests(SearchResult searchResult) throws IOException, RuntimeException {
         ClassifierRequestVo vo = this.createClassifierRequestObj(searchResult);
         String requestBody = mapper.writeValueAsString(vo.getBlogTextRequestVos());
         String responseBody = RequestUtil.post(this.classifierUrl, requestBody);
