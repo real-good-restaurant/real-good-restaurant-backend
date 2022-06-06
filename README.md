@@ -1,7 +1,6 @@
 
-# 2022 캡스톤 디자인: BERT 기반 맛집 리뷰 필터링 서비스 - 찐맛집
-
-BERT 기반 모델으로 네이버 맛집 리뷰 중 광고일 가능성이 높은 게시글을 필터링하는 서비스 입니다. Java Spring Boot 기반 서버를 위한 저장소입니다.
+# 딥러닝 기반 맛집 광고 리뷰 필터링 서비스: 찐맛집
+찐맛집은 BERT 기반 모델으로 네이버 맛집 리뷰 중 광고일 가능성이 높은 게시글을 필터링하는 서비스 입니다. Java Spring Boot 기반 서버를 위한 저장소입니다.
 
 
 ## Tech Stack
@@ -9,6 +8,10 @@ BERT 기반 모델으로 네이버 맛집 리뷰 중 광고일 가능성이 높�
 **Client:** React
 
 **Server:** Java Spring Boot
+
+**Classifier** Pytorch
+
+**Classifier Server** Fast API
 
 
 ## Architecture
