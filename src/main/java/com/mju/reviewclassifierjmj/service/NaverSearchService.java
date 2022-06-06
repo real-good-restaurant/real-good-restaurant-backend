@@ -61,8 +61,13 @@ public class NaverSearchService {
 
     private String extractNaverBlogText(String link) throws IOException {
         Document document = Jsoup.connect(link).get();
-        Elements elements = this.findTagIncludingText(document);
-        return elements.text();
+        try {
+            Elements elements = this.findTagIncludingText(document);
+            return elements.text();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private Elements findTagIncludingText(Document document) {
@@ -92,5 +97,9 @@ public class NaverSearchService {
         Map<String, String> requestHeaders = this.putNaverClientInfos(new HashMap<>());
         String responseBody = RequestUtil.get(naverSearchUrl, requestHeaders);
         return mapper.readValue(responseBody, SearchResult.class);
+    }
+
+    public SearchResult jsonToSearchResultObj(String requestBody) throws JsonProcessingException {
+        return mapper.readValue(requestBody, SearchResult.class);
     }
 }
