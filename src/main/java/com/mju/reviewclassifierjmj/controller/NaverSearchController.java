@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class NaverSearchController {
     private final NaverSearchService naverSearchService;
 
