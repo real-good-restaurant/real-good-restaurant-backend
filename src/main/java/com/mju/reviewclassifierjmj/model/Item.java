@@ -1,5 +1,6 @@
 package com.mju.reviewclassifierjmj.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,11 +38,14 @@ public class Item {
     private float probability;
 
     @CreationTimestamp
+    @JsonIgnore
     private Instant createdAt;
 
     @UpdateTimestamp
+    @JsonIgnore
     private Instant updatedAt;
 
+    @JsonIgnore
     public boolean isOlderThanMonth() {
         return this.updatedAt.until(Instant.now(), ChronoUnit.DAYS) > 30;
     }

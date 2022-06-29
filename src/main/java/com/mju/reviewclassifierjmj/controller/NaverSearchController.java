@@ -31,6 +31,7 @@ public class NaverSearchController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public NaverSearchResult handleException(Exception e) {
+        e.printStackTrace();
         NaverSearchResult naverSearchResult = new NaverSearchResult();
         naverSearchResult.setErrorMessage(e.getMessage());
         return naverSearchResult;
