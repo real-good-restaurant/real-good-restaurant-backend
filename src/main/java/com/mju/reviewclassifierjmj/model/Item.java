@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @Entity
@@ -40,4 +41,8 @@ public class Item {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public boolean isOlderThanMonth() {
+        return this.updatedAt.until(Instant.now(), ChronoUnit.DAYS) > 30;
+    }
 }

@@ -55,13 +55,18 @@ public class NaverSearchService {
         List<Item> newItemList = new ArrayList<>();
         for (Item item: itemList) {
             boolean cached = false;
+            boolean needUpdate = false;
             for (Item cachedItem: cachedItemList) {
                 if (cachedItem.getLink().equals(item.getLink())) {
                     cached = true;
+                    if (cachedItem.isOlderThanMonth()) {
+                        needUpdate = true;
+                        newItemList.add(cachedItem);
+                    }
                     break;
                 }
             }
-            if (!cached) {
+            if (!cached && !needUpdate) {
                 newItemList.add(item);
             }
         }
