@@ -5,3 +5,9 @@ app:
       secret: [secret]
   classifier:
     url: [url]
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: [url]
+    username: [username]
+    password: [password]

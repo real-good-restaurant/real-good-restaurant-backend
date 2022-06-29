@@ -1,10 +1,19 @@
 package com.mju.reviewclassifierjmj.model;
 
-import com.mju.reviewclassifierjmj.model.vo.BlogTextResponseVo;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import java.time.Instant;
 
 @Data
+@Entity
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String title;
 
     private String link;
@@ -19,13 +28,16 @@ public class Item {
 
     private String text;
 
+    @Transient
+    private String fullText;
+
     private String ad;
 
     private float probability;
 
-    public void assignClassificationResult(BlogTextResponseVo vo) {
-        this.text = vo.getText();
-        this.ad = vo.getAd();
-        this.probability = vo.getProbability();
-    }
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
 }
