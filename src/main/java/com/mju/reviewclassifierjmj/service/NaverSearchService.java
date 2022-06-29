@@ -3,12 +3,9 @@ package com.mju.reviewclassifierjmj.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mju.reviewclassifierjmj.model.Item;
-import com.mju.reviewclassifierjmj.model.SearchResult;
-import com.mju.reviewclassifierjmj.model.vo.BlogTextRequestVo;
-import com.mju.reviewclassifierjmj.model.vo.BlogTextResponseVo;
-import com.mju.reviewclassifierjmj.model.vo.ClassifierRequestVo;
-import com.mju.reviewclassifierjmj.model.vo.ClassifierResponseVo;
+import com.mju.reviewclassifierjmj.model.NaverSearchResult;
 import com.mju.reviewclassifierjmj.util.RequestUtil;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,11 +13,13 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class NaverSearchService {
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -33,24 +32,49 @@ public class NaverSearchService {
     @Value("${app.classifier.url}")
     private String classifierUrl;
 
-    public ClassifierResponseVo classifyBlogTests(SearchResult searchResult) throws IOException, RuntimeException {
-        ClassifierRequestVo vo = this.createClassifierRequestObj(searchResult);
-        String requestBody = mapper.writeValueAsString(vo.getBlogTextRequestVos());
-        String responseBody = RequestUtil.post(this.classifierUrl, requestBody);
-        List<BlogTextResponseVo> blogTextResponseVos =
-                Arrays.asList(mapper.readValue(responseBody, BlogTextResponseVo[].class));
-        return new ClassifierResponseVo(blogTextResponseVos);
+    private final ItemService itemService;
+
+    @Transactional
+    public NaverSearchResult classify(NaverSearchResult naverSearchResult) throws IOException, RuntimeException {
+        List<String> itemLinkList = itemService.extractItemsLink(naverSearchResult.getItems());
+        List<Item> cachedItemList = itemService.findAllByLinkList(itemLinkList);
+        List<Item> newItemList = this.filterCachedItems(naverSearchResult.getItems(), cachedItemList);
+        if (newItemList.size() > 0) {
+            newItemList = this.fillBlogText(newItemList);
+            String requestBody = mapper.writeValueAsString(newItemList);
+            String responseBody = RequestUtil.post(this.classifierUrl, requestBody);
+            List<Item> classifiedItemList = Arrays.asList(mapper.readValue(responseBody, Item[].class));
+            itemService.saveAll(classifiedItemList);
+            cachedItemList.addAll(classifiedItemList);
+        }
+        naverSearchResult.setItems(cachedItemList);
+        return naverSearchResult;
     }
 
-    public ClassifierRequestVo createClassifierRequestObj(SearchResult searchResult) throws IOException {
-        List<BlogTextRequestVo> blogTextRequestVos = new ArrayList<>();
-        for (int i = 0; i < searchResult.getItems().size(); i++) {
-            Item item = searchResult.getItems().get(i);
+    public List<Item> filterCachedItems(List<Item> itemList, List<Item> cachedItemList) {
+        List<Item> newItemList = new ArrayList<>();
+        for (Item item: itemList) {
+            boolean cached = false;
+            for (Item cachedItem: cachedItemList) {
+                if (cachedItem.getLink().equals(item.getLink())) {
+                    cached = true;
+                    break;
+                }
+            }
+            if (!cached) {
+                newItemList.add(item);
+            }
+        }
+        return newItemList;
+    }
+
+    public List<Item> fillBlogText(List<Item> itemList) throws IOException {
+        for (Item item: itemList) {
             String blogLinkForCrawling = this.findBlogLinkForCrawling(item.getLink());
             String blogText = this.extractNaverBlogText(blogLinkForCrawling);
-            blogTextRequestVos.add(new BlogTextRequestVo(i, blogText));
+            item.setFullText(blogText);
         }
-        return new ClassifierRequestVo(blogTextRequestVos);
+        return itemList;
     }
 
     private String findBlogLinkForCrawling(String link) throws IOException {
@@ -92,14 +116,14 @@ public class NaverSearchService {
         return requestHeaders;
     }
 
-    public SearchResult getNaverBlogSearchResults(String query, Long display, Long start) throws UnsupportedEncodingException, JsonProcessingException {
+    public NaverSearchResult getNaverBlogSearchResults(String query, Long display, Long start) throws UnsupportedEncodingException, JsonProcessingException {
         String naverSearchUrl = RequestUtil.createNaverSearchUrl(query, display, start);
         Map<String, String> requestHeaders = this.putNaverClientInfos(new HashMap<>());
         String responseBody = RequestUtil.get(naverSearchUrl, requestHeaders);
-        return mapper.readValue(responseBody, SearchResult.class);
+        return mapper.readValue(responseBody, NaverSearchResult.class);
     }
 
-    public SearchResult jsonToSearchResultObj(String requestBody) throws JsonProcessingException {
-        return mapper.readValue(requestBody, SearchResult.class);
+    public NaverSearchResult jsonToSearchResultObj(String requestBody) throws JsonProcessingException {
+        return mapper.readValue(requestBody, NaverSearchResult.class);
     }
 }
